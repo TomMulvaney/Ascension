@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public interface IMover {
+public interface IMove {
 	Vector3 GetForce();
 	Vector3 GetImpulse();
 }
