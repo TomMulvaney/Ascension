@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharStates : MonoBehaviour 
+public class AscState : MonoBehaviour 
 {
-
-
 	enum States
 	{
 		Ground,

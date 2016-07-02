@@ -80,7 +80,7 @@
 -define:UNITY_EDITOR_OSX
 -define:CROSS_PLATFORM_INPUT
 'Assets/Ascension/Behaviours/Movement/CharStates.cs'
-'Assets/Ascension/Behaviours/Movement/ICharState.cs'
+'Assets/Ascension/Behaviours/Movement/IMover.cs'
 'Assets/NGUI/Scripts/Interaction/EnvelopContent.cs'
 'Assets/NGUI/Scripts/Interaction/LanguageSelection.cs'
 'Assets/NGUI/Scripts/Interaction/TypewriterEffect.cs'
