@@ -2,24 +2,15 @@
 using System.Collections;
 using Prime31;
 
-public class AscMove : MonoBehaviour
+
+public class DemoScene : MonoBehaviour
 {
 	// movement config
-	[SerializeField]
-	private float gravity = -25f;
-	[SerializeField]
-	private float runSpeed = 8f;
-	[SerializeField]
-	private float groundDamping = 20f; // how fast do we change direction? higher means faster
-	[SerializeField]
-	private float inAirDamping = 5f;
-	[SerializeField]
-	private float jumpHeight = 3f;
-	[SerializeField]
-	private int airJumps = 1;
-	[SerializeField]
-	private float hookshotSpeed = 100f;
-
+	public float gravity = -25f;
+	public float runSpeed = 8f;
+	public float groundDamping = 20f; // how fast do we change direction? higher means faster
+	public float inAirDamping = 5f;
+	public float jumpHeight = 3f;
 
 	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
@@ -29,21 +20,11 @@ public class AscMove : MonoBehaviour
 	private RaycastHit2D _lastControllerColliderHit;
 	private Vector3 _velocity;
 
-	private IHookshot _hookshot;
-
-	int airJumpCount = 1;
-
-	bool displayGUI = true;
-
 
 	void Awake()
 	{
 		_animator = GetComponent<Animator>();
 		_controller = GetComponent<CharacterController2D>();
-
-		_hookshot = GetComponent<IHookshot> ();
-
-		Debug.Log (_hookshot);
 
 		// listen to some events for illustration purposes
 		_controller.onControllerCollidedEvent += onControllerCollider;
@@ -82,10 +63,8 @@ public class AscMove : MonoBehaviour
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
 	{
-		if (_controller.isGrounded) {
-			airJumpCount = 0;
+		if( _controller.isGrounded )
 			_velocity.y = 0;
-		}
 
 		if( Input.GetKey( KeyCode.RightArrow ) )
 		{
@@ -115,9 +94,8 @@ public class AscMove : MonoBehaviour
 
 
 		// we can only jump whilst grounded
-		if((_controller.isGrounded  || airJumpCount < airJumps) && Input.GetKeyDown( KeyCode.UpArrow ) )
+		if( _controller.isGrounded && Input.GetKeyDown( KeyCode.UpArrow ) )
 		{
-			airJumpCount = _controller.isGrounded ? 0 : airJumpCount + 1;
 			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
 			_animator.Play( Animator.StringToHash( "Jump" ) );
 		}
@@ -138,23 +116,10 @@ public class AscMove : MonoBehaviour
 			_controller.ignoreOneWayPlatformsThisFrame = true;
 		}
 
-		Vector3 hookshotVec = _hookshot.GetHookshotVector (transform.position) * hookshotSpeed;
-		if(!Mathf.Approximately(hookshotVec.magnitude, 0)) {
-			Debug.Log(hookshotVec.magnitude);
-			Debug.Log(hookshotVec);
-		}
-		_velocity.x += hookshotVec.x;
-		_velocity.y += hookshotVec.y;
-
 		_controller.move( _velocity * Time.deltaTime );
 
 		// grab our current _velocity to use as a base for all calculations
 		_velocity = _controller.velocity;
 	}
 
-	void OnGUI() {
-		if (displayGUI) {
-			GUILayout.Label (string.Format ("AirJumpCount: {0} / {1}", airJumpCount, airJumps));
-		}
-	}
 }
