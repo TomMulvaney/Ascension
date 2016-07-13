@@ -14,6 +14,14 @@ public class AscMove : MonoBehaviour
 	[SerializeField]
 	private float inAirDamping = 5f;
 	[SerializeField]
+	private float groundAcceleration = 20f;
+	[SerializeField]
+	private float groundDecceleration = 20f;
+	[SerializeField]
+	private float airAcceleration = 5f;
+	[SerializeField]
+	private float airDecceleration = 0f;
+	[SerializeField]
 	private float jumpHeight = 3f;
 	[SerializeField]
 	private int airJumps = 1;
@@ -30,6 +38,7 @@ public class AscMove : MonoBehaviour
 	private Vector3 _velocity;
 
 	private IHookshot _hookshot;
+	private Rigidbody2D _rb;
 
 	int airJumpCount = 1;
 
@@ -42,6 +51,7 @@ public class AscMove : MonoBehaviour
 		_controller = GetComponent<CharacterController2D>();
 
 		_hookshot = GetComponent<IHookshot> ();
+		_rb = GetComponent<Rigidbody2D> ();
 
 		Debug.Log (_hookshot);
 
@@ -127,6 +137,8 @@ public class AscMove : MonoBehaviour
 		var smoothedMovementFactor = _controller.isGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
 		_velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor );
 
+
+
 		// apply gravity before moving
 		_velocity.y += gravity * Time.deltaTime;
 
@@ -143,6 +155,7 @@ public class AscMove : MonoBehaviour
 			Debug.Log(hookshotVec.magnitude);
 			Debug.Log(hookshotVec);
 		}
+
 		_velocity.x += hookshotVec.x;
 		_velocity.y += hookshotVec.y;
 
