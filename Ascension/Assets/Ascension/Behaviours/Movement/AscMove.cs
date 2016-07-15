@@ -88,76 +88,104 @@ public class AscMove : MonoBehaviour
 
 	#endregion
 
+	bool Jump()
+    {
+        if(Input.GetKeyDown( KeyCode.UpArrow ))
+        {
+			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
+			_animator.Play( Animator.StringToHash( "Jump" ) );
+			return true;
+		}
+        else
+        {
+			return false;
+		}
+	}
+    
+    void NormalizedHorizontalMovement()
+    {
+        if( Input.GetKey( KeyCode.RightArrow ) )
+        {
+            normalizedHorizontalSpeed = 1;
+            if( transform.localScale.x < 0f )
+                transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+
+            if( _controller.isGrounded )
+                _animator.Play( Animator.StringToHash( "Run" ) );
+        }
+        else if( Input.GetKey( KeyCode.LeftArrow ) )
+        {
+            normalizedHorizontalSpeed = -1;
+            if( transform.localScale.x > 0f )
+                transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+
+            if( _controller.isGrounded )
+                _animator.Play( Animator.StringToHash( "Run" ) );
+        }
+        else
+        {
+            normalizedHorizontalSpeed = 0;
+
+            if( _controller.isGrounded )
+                _animator.Play( Animator.StringToHash( "Idle" ) );
+        }
+    }
+
 
 	// the Update loop contains a very simple example of moving the character around and controlling the animation
 	void Update()
 	{
-		if (_controller.isGrounded) {
+        // Reset
+        // Find horizontal
+        // Jump
+        // Apply horizontal
+        // Gravity
+        // Platform drop
+        // Move
+        
+		if (_controller.isGrounded) 
+        {
 			airJumpCount = 0;
 			_velocity.y = 0;
+            NormalizedHorizontalMovement ();
+            Jump ();
+            _velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping );
+            
+            // if holding down bump up our movement amount and turn off one way platform detection for a frame.
+            // this lets uf jump down through one way platforms
+            if( Input.GetKey( KeyCode.DownArrow ) )
+            {
+                _velocity.y *= 3f;
+                _controller.ignoreOneWayPlatformsThisFrame = true;
+            }
 		}
-
-		if( Input.GetKey( KeyCode.RightArrow ) )
-		{
-			normalizedHorizontalSpeed = 1;
-			if( transform.localScale.x < 0f )
-				transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
-
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Run" ) );
-		}
-		else if( Input.GetKey( KeyCode.LeftArrow ) )
-		{
-			normalizedHorizontalSpeed = -1;
-			if( transform.localScale.x > 0f )
-				transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
-
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Run" ) );
-		}
-		else
-		{
-			normalizedHorizontalSpeed = 0;
-
-			if( _controller.isGrounded )
-				_animator.Play( Animator.StringToHash( "Idle" ) );
-		}
-
-
-		// we can only jump whilst grounded
-		if((_controller.isGrounded  || airJumpCount < airJumps) && Input.GetKeyDown( KeyCode.UpArrow ) )
-		{
-			airJumpCount = _controller.isGrounded ? 0 : airJumpCount + 1;
-			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
-			_animator.Play( Animator.StringToHash( "Jump" ) );
-		}
-
-
-		// apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
-		var smoothedMovementFactor = _controller.isGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
-		_velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor );
-
-
+        else 
+        {
+            NormalizedHorizontalMovement ();
+            if(airJumpCount < airJumps)
+            {
+                airJumpCount += Jump () ? 1 : 0;
+            }
+            
+            float targetRunSpeed = normalizedHorizontalSpeed * runSpeed;
+            
+            if (targetRunSpeed <= 0 && targetRunSpeed >= _velocity.x || targetRunSpeed >= 0 && targetRunSpeed <= _velocity.x)
+            {
+                _velocity.x += Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping );
+            }
+		} 
 
 		// apply gravity before moving
 		_velocity.y += gravity * Time.deltaTime;
 
-		// if holding down bump up our movement amount and turn off one way platform detection for a frame.
-		// this lets uf jump down through one way platforms
-		if( _controller.isGrounded && Input.GetKey( KeyCode.DownArrow ) )
-		{
-			_velocity.y *= 3f;
-			_controller.ignoreOneWayPlatformsThisFrame = true;
-		}
-
+		
 		Vector3 hookshotVec = _hookshot.GetHookshotVector (transform.position) * hookshotSpeed;
 		if(!Mathf.Approximately(hookshotVec.magnitude, 0)) {
 			Debug.Log(hookshotVec.magnitude);
 			Debug.Log(hookshotVec);
+            _velocity.x = hookshotVec.x;
+            _velocity.y = hookshotVec.y;
 		}
-
-		_velocity.x += hookshotVec.x;
-		_velocity.y += hookshotVec.y;
 
 		_controller.move( _velocity * Time.deltaTime );
 
@@ -168,6 +196,8 @@ public class AscMove : MonoBehaviour
 	void OnGUI() {
 		if (displayGUI) {
 			GUILayout.Label (string.Format ("AirJumpCount: {0} / {1}", airJumpCount, airJumps));
+            GUILayout.Label (string.Format ("VelocityX: {0}", _velocity.x));
+            GUILayout.Label (string.Format ("VelocityY: {0}", _velocity.y));
 		}
 	}
 }
