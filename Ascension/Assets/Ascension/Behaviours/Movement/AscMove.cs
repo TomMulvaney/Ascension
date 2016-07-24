@@ -4,22 +4,30 @@ using Prime31;
 
 public class AscMove : MonoBehaviour
 {
-	// movement config
-	[SerializeField]
-	private float gravity = -25f;
-	[SerializeField]
-	private float runSpeed = 8f;
-	[SerializeField]
-	private float groundDamping = 20f; // how fast do we change direction? higher means faster
-	[SerializeField]
-	private float inAirDamping = 5f;
-	[SerializeField]
-	private float jumpHeight = 3f;
-	[SerializeField]
-	private int airJumps = 1;
-	[SerializeField]
-	private float hookshotSpeed = 100f;
+//	// movement config
+//	[SerializeField]
+//    private float gravity = -25f;
+//	[SerializeField]
+//	private float runSpeed = 8f;
+//	[SerializeField]
+//	private float groundDamping = 20f; // how fast do we change direction? higher means faster
+//	[SerializeField]
+//	private float inAirDamping = 5f;
+//	[SerializeField]
+//	private float jumpHeight = 3f;
+//	[SerializeField]
+//	private int airJumps = 1;
+//	[SerializeField]
+//	private float hookshotSpeed = 100f;
 
+    // movement config
+    public float gravity = -25f;
+    public float runSpeed = 8f;
+    public float groundDamping = 20f; // how fast do we change direction? higher means faster
+    public float inAirDamping = 5f;
+    public float jumpHeight = 3f;
+    public int airJumps = 1;
+    public float hookshotSpeed = 100f;
 
 	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
