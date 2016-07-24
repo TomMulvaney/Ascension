@@ -14,14 +14,6 @@ public class AscMove : MonoBehaviour
 	[SerializeField]
 	private float inAirDamping = 5f;
 	[SerializeField]
-	private float groundAcceleration = 20f;
-	[SerializeField]
-	private float groundDecceleration = 20f;
-	[SerializeField]
-	private float airAcceleration = 5f;
-	[SerializeField]
-	private float airDecceleration = 0f;
-	[SerializeField]
 	private float jumpHeight = 3f;
 	[SerializeField]
 	private int airJumps = 1;
@@ -102,7 +94,7 @@ public class AscMove : MonoBehaviour
 		}
 	}
     
-    void NormalizedHorizontalMovement()
+    void CalcNormalizedHorizontalMovement()
     {
         if( Input.GetKey( KeyCode.RightArrow ) )
         {
@@ -147,7 +139,7 @@ public class AscMove : MonoBehaviour
         {
 			airJumpCount = 0;
 			_velocity.y = 0;
-            NormalizedHorizontalMovement ();
+            CalcNormalizedHorizontalMovement ();
             Jump ();
             _velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping );
             
@@ -161,17 +153,15 @@ public class AscMove : MonoBehaviour
 		}
         else 
         {
-            NormalizedHorizontalMovement ();
+            CalcNormalizedHorizontalMovement ();
             if(airJumpCount < airJumps)
             {
                 airJumpCount += Jump () ? 1 : 0;
             }
             
-            float targetRunSpeed = normalizedHorizontalSpeed * runSpeed;
-            
-            if (targetRunSpeed <= 0 && targetRunSpeed >= _velocity.x || targetRunSpeed >= 0 && targetRunSpeed <= _velocity.x)
+            if (normalizedHorizontalSpeed != 0 && (Mathf.Abs (_velocity.x) <= runSpeed || _velocity.x * normalizedHorizontalSpeed < 0)) 
             {
-                _velocity.x += Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping );
+                _velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * inAirDamping );   
             }
 		} 
 
@@ -179,10 +169,11 @@ public class AscMove : MonoBehaviour
 		_velocity.y += gravity * Time.deltaTime;
 
 		
-		Vector3 hookshotVec = _hookshot.GetHookshotVector (transform.position) * hookshotSpeed;
+		Vector2 hookshotVec = _hookshot.GetHookshotVector (transform.position);
+        
+        
+        hookshotVec *= hookshotSpeed;
 		if(!Mathf.Approximately(hookshotVec.magnitude, 0)) {
-			Debug.Log(hookshotVec.magnitude);
-			Debug.Log(hookshotVec);
             _velocity.x = hookshotVec.x;
             _velocity.y = hookshotVec.y;
 		}
