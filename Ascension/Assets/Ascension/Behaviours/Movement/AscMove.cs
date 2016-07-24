@@ -4,30 +4,15 @@ using Prime31;
 
 public class AscMove : MonoBehaviour
 {
-//	// movement config
-//	[SerializeField]
-//    private float gravity = -25f;
-//	[SerializeField]
-//	private float runSpeed = 8f;
-//	[SerializeField]
-//	private float groundDamping = 20f; // how fast do we change direction? higher means faster
-//	[SerializeField]
-//	private float inAirDamping = 5f;
-//	[SerializeField]
-//	private float jumpHeight = 3f;
-//	[SerializeField]
-//	private int airJumps = 1;
-//	[SerializeField]
-//	private float hookshotSpeed = 100f;
-
     // movement config
-    public float gravity = -25f;
+    public float gravity = 20f;
     public float runSpeed = 8f;
     public float groundDamping = 20f; // how fast do we change direction? higher means faster
     public float inAirDamping = 5f;
     public float jumpHeight = 3f;
     public int airJumps = 1;
     public float hookshotSpeed = 100f;
+    public float wallSlideSpeed = 1f;
 
 	[HideInInspector]
 	private float normalizedHorizontalSpeed = 0;
@@ -92,7 +77,7 @@ public class AscMove : MonoBehaviour
     {
         if(Input.GetKeyDown( KeyCode.UpArrow ))
         {
-			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * -gravity );
+			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * gravity );
 			_animator.Play( Animator.StringToHash( "Jump" ) );
 			return true;
 		}
@@ -143,22 +128,24 @@ public class AscMove : MonoBehaviour
         // Platform drop
         // Move
         
-		if (_controller.isGrounded) 
-        {
-			airJumpCount = 0;
-			_velocity.y = 0;
+        if (_controller.isGrounded) {
+            airJumpCount = 0;
+            _velocity.y = 0;
             CalcNormalizedHorizontalMovement ();
             Jump ();
-            _velocity.x = Mathf.Lerp( _velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping );
+            _velocity.x = Mathf.Lerp (_velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * groundDamping);
             
             // if holding down bump up our movement amount and turn off one way platform detection for a frame.
             // this lets uf jump down through one way platforms
-            if( Input.GetKey( KeyCode.DownArrow ) )
-            {
+            if (Input.GetKey (KeyCode.DownArrow)) {
                 _velocity.y *= 3f;
                 _controller.ignoreOneWayPlatformsThisFrame = true;
             }
-		}
+        } else if (_controller.collisionState.left || _controller.collisionState.right) {
+            airJumpCount = 0;
+            _velocity.y = -wallSlideSpeed;
+            Jump ();
+        }
         else 
         {
             CalcNormalizedHorizontalMovement ();
@@ -174,7 +161,7 @@ public class AscMove : MonoBehaviour
 		} 
 
 		// apply gravity before moving
-		_velocity.y += gravity * Time.deltaTime;
+		_velocity.y -= gravity * Time.deltaTime;
 
 		
 		Vector2 hookshotVec = _hookshot.GetHookshotVector (transform.position);
