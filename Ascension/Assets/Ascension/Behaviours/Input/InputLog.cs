@@ -3,7 +3,7 @@ using System.Collections;
 
 public class InputLog : MonoBehaviour {
     
-    string[] _names = new string[] {"Horizontal", "Vertical", "Fire1", "Fire2", "Fire3", "Jump", "Mouse X", "Mouse Y", "Mouse ScrollWheel"};
+    string[] _names = new string[] {"Horizontal", "Vertical", "Fire1", "Fire2", "Fire3", "Jump", "Mouse X", "Mouse Y", "Mouse ScrollWheel", "Submit", "Cancel"};
 	
 	// Update is called once per frame
 	void Update () {
