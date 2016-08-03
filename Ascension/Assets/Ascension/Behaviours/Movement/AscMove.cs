@@ -4,6 +4,11 @@ using Prime31;
 
 public class AscMove : MonoBehaviour
 {
+    public readonly string VERTICAL = "Vertical";
+    public readonly string HORIZONTAL = "Horizontal";
+    public readonly string RUN = "Run";
+    public readonly string JUMP = "Jump";
+    
     // movement config
     public float gravity = 20f;
     public float runSpeed = 8f;
@@ -75,10 +80,10 @@ public class AscMove : MonoBehaviour
 
 	bool Jump()
     {
-        if(Input.GetKeyDown( KeyCode.UpArrow ))
+        if(Input.GetButtonDown( JUMP ))
         {
 			_velocity.y = Mathf.Sqrt( 2f * jumpHeight * gravity );
-			_animator.Play( Animator.StringToHash( "Jump" ) );
+			_animator.Play( Animator.StringToHash( JUMP ) );
 			return true;
 		}
         else
@@ -89,7 +94,8 @@ public class AscMove : MonoBehaviour
     
     void CalcNormalizedHorizontalMovement()
     {
-        if( Input.GetKey( KeyCode.RightArrow ) )
+        float horizontal = Input.GetAxis (HORIZONTAL);
+        if( horizontal > 0.9f )
         {
             normalizedHorizontalSpeed = 1;
             if( transform.localScale.x < 0f )
@@ -98,7 +104,7 @@ public class AscMove : MonoBehaviour
             if( _controller.isGrounded )
                 _animator.Play( Animator.StringToHash( "Run" ) );
         }
-        else if( Input.GetKey( KeyCode.LeftArrow ) )
+        else if( horizontal < -0.9f )
         {
             normalizedHorizontalSpeed = -1;
             if( transform.localScale.x > 0f )
@@ -137,7 +143,7 @@ public class AscMove : MonoBehaviour
             
             // if holding down bump up our movement amount and turn off one way platform detection for a frame.
             // this lets uf jump down through one way platforms
-            if (Input.GetKey (KeyCode.DownArrow)) {
+            if (Input.GetAxis (VERTICAL) < -0.9f) {
                 _velocity.y *= 3f;
                 _controller.ignoreOneWayPlatformsThisFrame = true;
             }

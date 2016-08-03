@@ -3,7 +3,7 @@ using System.Collections;
 
 public class InputLog : MonoBehaviour {
     
-    string[] _names = new string[] {"Horizontal", "Vertical", "Fire1", "Fire2", "Fire3", "Jump", "Mouse X", "Mouse Y", "Mouse ScrollWheel", "Submit", "Cancel"};
+    string[] _names = new string[] {"Fire1", "Fire2", "Fire3", "Jump", "Mouse X", "Mouse Y", "Mouse ScrollWheel", "Submit", "Cancel"};
 	
 	// Update is called once per frame
 	void Update () {
@@ -13,4 +13,9 @@ public class InputLog : MonoBehaviour {
             }
         }
 	}
+    
+    void OnGUI() {
+        GUILayout.Label (string.Format ("Vertical: {0}", Input.GetAxis ("Vertical")));
+        GUILayout.Label (string.Format ("Horizontal: {0}", Input.GetAxis ("Horizontal")));
+    }
 }
